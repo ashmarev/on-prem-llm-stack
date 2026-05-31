@@ -1,50 +1,99 @@
 # on-prem-llm-stack
- 
+
 **Локальный LLM-стек для корпоративной среды · On-premises LLM stack for enterprise**
- 
-Практические материалы по развёртыванию LLM без облака — для сред с требованиями
+
+Практический фреймворк развёртывания LLM без облака — для сред с требованиями
 к периметру, регуляторике и критической информационной инфраструктуре.
- 
-Practical guides for deploying LLMs without cloud dependency — for environments
-with perimeter requirements, regulatory constraints, and critical infrastructure.
- 
+
 ---
- 
-## Зачем · Why on-prem
- 
+
+## Зачем on-prem
+
 Облачный LLM — не вариант если:
- 
+
 - данные не покидают периметр (187-ФЗ, КИИ, внутренние политики)
 - нужен контроль над моделью, версией и поведением
 - требуется audit trail для регулятора или внутренней безопасности
-  
-Cloud LLM is not an option when:
- 
-- data must not leave the perimeter (regulatory, internal policy)
-- you need control over model, version, and behavior
-- audit trail is required for compliance or security
+
 ---
- 
-## Содержимое · Contents
- 
-| Этап | Описание | Статус |
+
+## Главный вывод
+
+LLM в периметре запускается на любом бюджете. Порог входа — 10 тысяч рублей
+и б/у игровая карта. Аргумент "у нас нет инфраструктуры" больше не работает
+для пилота и внутренних инструментов.
+
+Для продуктива и критичных сервисов — серверное железо с ECC-памятью
+и предсказуемым поведением под нагрузкой.
+
+---
+
+## Фреймворк принятия решений
+
+Каждый уровень отвечает на один вопрос и закрывает один класс рисков:
+
+### [01-inference](./01-inference/) — Можем ли мы это запустить?
+
+**Требования:**
+- Сколько одновременных пользователей?
+- Какая допустимая латентность (p99 TTFT)?
+- Какой бюджет на железо?
+
+**Закрывает:** инфраструктурный риск — данные не покидают периметр,
+модель работает на своём железе.
+
+---
+
+### [02-proxy](./02-proxy/) — Можем ли мы это контролировать?
+
+**Требования:**
+- Логирование всех запросов и ответов для audit trail
+- Rate limiting по пользователям и командам
+- Роутинг между моделями
+
+**Закрывает:** операционный риск — каждый запрос к LLM зафиксирован,
+есть доказательная база для регулятора.
+
+---
+
+### [03-agents](./03-agents/) — Можем ли мы это автоматизировать?
+
+**Требования:**
+- Tool calling для работы с внешними системами
+- Structured output для интеграции с бизнес-процессами
+- Audit trail действий агента
+
+**Закрывает:** функциональный риск — агент действует в заданных границах,
+каждое действие traceable.
+
+---
+
+### [04-auth](./04-auth/) — Можем ли мы это разграничить?
+
+**Требования:**
+- Авторизация между агентами и сервисами
+- Принцип минимальных привилегий для агентов
+- Token exchange без хранения секретов в коде
+
+**Закрывает:** риск авторизации — агент получает доступ только к тому
+что ему явно разрешено, соответствует требованиям ФСТЭК по разграничению доступа.
+
+---
+
+## Статус
+
+| Раздел | Описание | Статус |
 |---|---|---|
-| [01-inference](./01-inference/) | Локальный инференс: выбор модели, железо, vLLM · Local inference: model selection, hardware, vLLM | ✅ Ready |
-| [02-proxy](./02-proxy/) | Прокси: роутинг, rate limiting, логирование · Proxy: routing, rate limiting, logging | 🔜 Coming |
-| [03-agents](./03-agents/) | Агентные архитектуры, tool call, audit trail · Agent architectures, tool call, audit trail | 🔜 Coming |
-| [04-auth](./04-auth/) | Авторизация агентов, token exchange · Inter-agent authorization, token exchange | 🔜 Coming |
-  
+| [01-inference](./01-inference/) | Выбор железа, модели, vLLM: от RTX 2080 Ti за 10 тыс. до A100 | ✅ Ready |
+| [02-proxy](./02-proxy/) | Роутинг, rate limiting, логирование | 🔜 Coming |
+| [03-agents](./03-agents/) | Агентные архитектуры, tool call, audit trail | 🔜 Coming |
+| [04-auth](./04-auth/) | Авторизация агентов, token exchange | 🔜 Coming |
+
 ---
- 
-## Связанные материалы · Related
- 
-- Хабр / Habr — статья в процессе · 🔜 Coming
-  
----
- 
-## Автор · Author
- 
-**Артём Шмарёв · Artem Shmarev**  
-Data Governance & AI Architect ·  Unicon BSL  
-Lab Head · Herzen University  
-[linkedin.com/in/ashmarev](https://linkedin.com/in/ashmarev)  
+
+## Автор
+
+**Артём Шмарёв · Artem Shmarev**
+Data Governance & AI Architect · Unicon BSL
+Lab Head · Herzen University
+[linkedin.com/in/ashmarev](https://linkedin.com/in/ashmarev)
